@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Make sure these variables are available from main.sh
+#Teacher Menu Show
 teacher_ka_menu()
 {
-    echo -e "${BOLD_CYAN}\nTEACHER PORTAL${RESET}"
+    echo -e "${BOLD_YELLOW}\nWelcome ${teacher_name} to Teacher Portal\n${RESET}"
     echo -e "1. Add New Student"
     echo -e "2. Delete Student"
     echo -e "3. Assign Marks"
@@ -14,28 +14,29 @@ teacher_ka_menu()
     echo -e "8. List Students by CGPA (Ascending Order)"
     echo -e "9. List Students by CGPA (Descending Order)"
     echo -e "12. Credits"
-    echo -e "0. Back to Main Menu"
+    echo -e "0. Log Out"
     echo -e  "${RESET}"
 }
 
 #Credits function     
 credits()
 {
-    echo -e "${BOLD_GREEN}\n ---------       CREDITS       ----------${RESET}"
     echo -e "${BOLD_YELLOW}Developed By: Muhammad Fahad${RESET}"
-    echo -e " - BSc Computer Science student at FAST University"
     echo -e " - Skilled in C/C++"
     echo -e " - Experience in AI, problem-solving"
     echo
     echo -e "${BOLD_YELLOW}Contributor: Ajmal Razaq Bhatti${RESET}"
     echo -e " - App/Web Designer "
-    echo -e " - Passionate about Product development and designing"
+    echo -e " - Passionate About Product development and designing"
 }
+
+
+
 
 #Add student function
 add_student()
 {
-    # Check if student limit is reached (20 students)
+    clear
     if [[ -f "$S_FILE" ]]; then
         student_count=$(grep -c "^" "$S_FILE")
         if [[ $student_count -ge 20 ]]; then
@@ -44,29 +45,28 @@ add_student()
         fi
     fi
 
-    echo -e "${BOLD_YELLOW}\nEnter Student Details:"
+    echo -e "${BOLD_YELLOW}\nEnter Student Details:${RESET}"
     read -p "Student ID: " student_id
     read -p "Password: " password
-    # Check if student ID already exists
-    if grep -q "^$student_id," "$S_FILE"; then
+    if grep -q "^$student_id," "$AUTH_FILE" 2>/dev/null; then
         echo -e "${BOLD_YELLOW}Student ID already exists!${RESET}"
         return
     fi
-    # Encrypt the password before storing
-    encrypted_password=$(encrypt_password "$password")
-    # Append new student details to the file
+    echo "$student_id,$password" >> "$AUTH_FILE"
     echo -e "${BOLD_YELLOW}Enter Student Personal Details:${RESET}"
-    # Read personal details
     read -p "Name: " name
     read -p "Age: " age
     read -p "Department: " department
-    echo "$student_id,$encrypted_password,$name,$age,$department" >> "$S_FILE"
-    
-    # Display remaining slots
+    echo "$student_id,$name,$age,$department" >> "$S_FILE"
     remaining=$((20 - $(grep -c "^" "$S_FILE")))
+    clear
     echo -e "\n${RESET}${BOLD_GREEN}Student Added Successfully!${RESET}"
     echo -e "${BOLD_CYAN}Remaining student slots: $remaining${RESET}"
 }
+
+
+
+
 
 #Delete student function  
 del_student() {
@@ -75,36 +75,61 @@ del_student() {
     
     if grep -q "^$del_id," "$S_FILE"; then
         # Get student name for confirmation message
-        student_name=$(grep "^$del_id," "$S_FILE" | cut -d',' -f3)
+        student_name=$(grep "^$del_id," "$S_FILE" | cut -d',' -f2)
         
-        # Delete from students file using sed for in-place editing
+        # Delete from students file and auth file
         sed -i "/^$del_id,/d" "$S_FILE"
+        sed -i "/^$del_id,/d" "$AUTH_FILE"
         
         # Also delete marks for this student if marks file exists
         if [[ -f "$M_FILE" ]]; then
             sed -i "/^$del_id,/d" "$M_FILE"
         fi
         
-        echo -e "${BOLD_GREEN}Student $student_name (ID: $del_id) has been deleted along with their marks records.${RESET}"
+        echo -e "${BOLD_GREEN}Student $student_name (ID: $del_id) has been deleted along with their records.${RESET}"
     else
         echo -e "${BOLD_YELLOW}Student with ID $del_id not found!${RESET}"
     fi
 }
-
 # Assign marks function (simplified version that only assigns marks)
 assign_marks()
 {
-    echo -e "${BOLD_YELLOW}\nEnter Student ID to assign marks:${RESET}"
-    read -p "Student ID: " student_id
+        all_students
+        echo -e "${BOLD_YELLOW}\nEnter Student ID to assign marks:${RESET}"
+        read -p "Student ID: " student_id
     
     if grep -q "^$student_id," "$S_FILE"; then
         student_info=$(grep "^$student_id," "$S_FILE")
         name=$(echo "$student_info" | cut -d',' -f3)
         echo -e "${BOLD_CYAN}Assigning marks for: $name (ID: $student_id)${RESET}"
         
-        read -p "Enter marks for Subject 1 (out of 100): " sub1
-        read -p "Enter marks for Subject 2 (out of 100): " sub2
-        read -p "Enter marks for Subject 3 (out of 100): " sub3
+        # Get marks for subjects
+       while true; do
+        read -p "Enter marks for OS: " sub1
+        if [[ "$sub1" =~ ^[0-9]+$ ]] && [ "$sub1" -ge 0 ] && [ "$sub1" -le 100 ]; then
+            break
+        else
+            echo -e "${BOLD_YELLOW}Invalid input! Please enter a number between 0 and 100.${RESET}"
+        fi
+    done
+
+    while true; do
+        read -p "Enter marks for DB: " sub2
+        if [[ "$sub2" =~ ^[0-9]+$ ]] && [ "$sub2" -ge 0 ] && [ "$sub2" -le 100 ]; then
+            break
+        else
+            echo -e "${BOLD_YELLOW}Invalid input! Please enter a number between 0 and 100.${RESET}"
+        fi
+    done
+
+    while true; do
+        read -p "Enter marks for PROB: " sub3
+        if [[ "$sub3" =~ ^[0-9]+$ ]] && [ "$sub3" -ge 0 ] && [ "$sub3" -le 100 ]; then
+            break
+        else
+            echo -e "${BOLD_YELLOW}Invalid input! Please enter a number between 0 and 100.${RESET}"
+        fi
+    done
         
         # Check if marks file exists, create if not
         if [[ ! -f "$M_FILE" ]]; then
@@ -142,63 +167,20 @@ all_students()
         echo -e "${BOLD_YELLOW}No student records found!${RESET}"
         return
     fi
-    
-    echo -e "${BOLD_CYAN}\n ---------       ALL STUDENTS       ---------- ${RESET}"
     echo -e "${CYAN}ID\tName\t\tAge\tDepartment${RESET}"
     echo -e "${CYAN}-------------------------------------------${RESET}"
-    
-    while IFS=',' read -r id password name age department || [[ -n "$id" ]]; do
+    while IFS=',' read -r id name age department || [[ -n "$id" ]]; do
         # Skip empty lines
         if [[ -z "$id" ]]; then
             continue
         fi
-        
         echo -e "${CYAN}$id\t$name\t\t$age\t$department${RESET}"
     done < "$S_FILE"
+    student_count=$(grep -c "^" "$S_FILE")
+    echo -e "\n${BOLD_CYAN}Total Students: $student_count / 20${RESET}"
 }
 
-view_1_student()
-{
-    echo -e "${BOLD_YELLOW}\nEnter Student ID to view:${RESET}"
-    read -p "Student ID: " student_id
-    
-    if grep -q "^$student_id," "$S_FILE"; then
-        student_info=$(grep "^$student_id," "$S_FILE")
-        id=$(echo "$student_info" | cut -d',' -f1)
-        password=$(echo "$student_info" | cut -d',' -f2)
-        name=$(echo "$student_info" | cut -d',' -f3)
-        age=$(echo "$student_info" | cut -d',' -f4)
-        department=$(echo "$student_info" | cut -d',' -f5)
-        
-        echo -e "${BOLD_CYAN}\n ---------       STUDENT DETAILS       ---------- ${RESET}"
-        echo -e "${CYAN}ID: $id${RESET}"
-        echo -e "${CYAN}Name: $name${RESET}"
-        echo -e "${CYAN}Age: $age${RESET}"
-        echo -e "${CYAN}Department: $department${RESET}"
-        
-        # Check if marks exist
-        if [[ -f "$M_FILE" ]] && grep -q "^$student_id," "$M_FILE"; then
-            marks_info=$(grep "^$student_id," "$M_FILE")
-            sub1=$(echo "$marks_info" | cut -d',' -f2)
-            sub2=$(echo "$marks_info" | cut -d',' -f3)
-            sub3=$(echo "$marks_info" | cut -d',' -f4)
-            grade1=$(echo "$marks_info" | cut -d',' -f5)
-            grade2=$(echo "$marks_info" | cut -d',' -f6)
-            grade3=$(echo "$marks_info" | cut -d',' -f7)
-            cgpa=$(echo "$marks_info" | cut -d',' -f8)
-            
-            echo -e "${BOLD_CYAN}\n ---------       ACADEMIC DETAILS       ---------- ${RESET}"
-            echo -e "${CYAN}Subject 1: $sub1/100 (Grade: $grade1)${RESET}"
-            echo -e "${CYAN}Subject 2: $sub2/100 (Grade: $grade2)${RESET}"
-            echo -e "${CYAN}Subject 3: $sub3/100 (Grade: $grade3)${RESET}"
-            echo -e "${CYAN}CGPA: $cgpa${RESET}"
-        else
-            echo -e "${BOLD_YELLOW}No marks data available for this student.${RESET}"
-        fi
-    else
-        echo -e "${BOLD_YELLOW}Student ID not found!${RESET}"
-    fi
-}
+
 
 passed_students()
 {
@@ -220,8 +202,8 @@ passed_students()
         # Check if student passed (CGPA >= 2.0)
         if (( $(echo "$cgpa >= 2.0" | bc -l) )); then
             student_info=$(grep "^$id," "$S_FILE")
-            name=$(echo "$student_info" | cut -d',' -f3)
-            department=$(echo "$student_info" | cut -d',' -f5)
+            name=$(echo "$student_info" | cut -d',' -f2)
+            department=$(echo "$student_info" | cut -d',' -f4)
             
             echo -e "${CYAN}$id\t$name\t\t$department\t$cgpa${RESET}"
         fi
@@ -248,8 +230,8 @@ failed_students()
         # Check if student failed (CGPA < 2.0)
         if (( $(echo "$cgpa < 2.0" | bc -l) )); then
             student_info=$(grep "^$id," "$S_FILE")
-            name=$(echo "$student_info" | cut -d',' -f3)
-            department=$(echo "$student_info" | cut -d',' -f5)
+            name=$(echo "$student_info" | cut -d',' -f2)
+            department=$(echo "$student_info" | cut -d',' -f4)
             
             echo -e "${CYAN}$id\t$name\t\t$department\t$cgpa${RESET}"
         fi
@@ -278,8 +260,8 @@ list_students_asc_cgpa()
         fi
         
         student_info=$(grep "^$id," "$S_FILE")
-        name=$(echo "$student_info" | cut -d',' -f3)
-        department=$(echo "$student_info" | cut -d',' -f5)
+        name=$(echo "$student_info" | cut -d',' -f2)
+        department=$(echo "$student_info" | cut -d',' -f4)
         
         echo -e "${CYAN}$id\t$name\t\t$department\t$cgpa${RESET}"
     done < temp_sort.txt
@@ -312,8 +294,8 @@ list_students_desc_cgpa()
         fi
         
         student_info=$(grep "^$id," "$S_FILE")
-        name=$(echo "$student_info" | cut -d',' -f3)
-        department=$(echo "$student_info" | cut -d',' -f5)
+        name=$(echo "$student_info" | cut -d',' -f2)
+        department=$(echo "$student_info" | cut -d',' -f4)
         
         echo -e "${CYAN}$id\t$name\t\t$department\t$cgpa${RESET}"
     done < temp_sort.txt
@@ -389,7 +371,7 @@ calculate_grades()
         
         # Get student name for output
         student_info=$(grep "^$id," "$S_FILE")
-        name=$(echo "$student_info" | cut -d',' -f3)
+        name=$(echo "$student_info" | cut -d',' -f2)
         
         echo -e "${CYAN}Grades calculated for $name (ID: $id)${RESET}"
     done < "$M_FILE"
@@ -449,7 +431,7 @@ calculate_cgpa()
         
         # Get student name for output
         student_info=$(grep "^$id," "$S_FILE")
-        name=$(echo "$student_info" | cut -d',' -f3)
+        name=$(echo "$student_info" | cut -d',' -f2)
         
         echo -e "${CYAN}CGPA calculated for $name (ID: $id): $cgpa${RESET}"
     done < "$M_FILE"

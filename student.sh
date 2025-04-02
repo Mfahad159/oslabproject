@@ -1,19 +1,18 @@
 #!/bin/bash
 
-# Make sure these variables are available from main.sh
-# BOLD_CYAN, BOLD_GREEN, BOLD_YELLOW, RESET, S_FILE, M_FILE should be defined in main.sh
-
+#student menu 
 student_ka_menu()
 {
-    echo -e "${BOLD_CYAN}\nSTUDENT PORTAL${RESET}"  # Fixed typo in "STUDENT"
+    echo -e "${BOLD_CYAN}\n Welcome To Student Portal ${student_current_id} ${RESET}"
     echo -e "1. View Grades"
     echo -e "2. View CGPA"
-    echo -e "0. Back to Main Menu"
+    echo -e "0. Log Out"
     echo -e  "${RESET}"
 }
 
 view_student_grades()
 {
+    clear
     if [[ ! -f "$M_FILE" ]]; then
         echo -e "${BOLD_YELLOW}No grades found for your account!${RESET}"
         return
@@ -28,7 +27,7 @@ view_student_grades()
     fi
     
     student_info=$(grep "^$student_current_id," "$S_FILE")
-    name=$(echo "$student_info" | cut -d',' -f3)
+    name=$(echo "$student_info" | cut -d',' -f2)
     
     # Parse marks and grades
     sub1=$(echo "$student_marks" | cut -d',' -f2)
@@ -48,6 +47,7 @@ view_student_grades()
 
 view_student_cgpa()
 {
+    clear
     if [[ ! -f "$M_FILE" ]]; then
         echo -e "${BOLD_YELLOW}No CGPA found for your account!${RESET}"
         return
@@ -62,10 +62,15 @@ view_student_cgpa()
     fi
     
     student_info=$(grep "^$student_current_id," "$S_FILE")
-    name=$(echo "$student_info" | cut -d',' -f3)
+    name=$(echo "$student_info" | cut -d',' -f2)
     
     # Parse CGPA
     cgpa=$(echo "$student_marks" | cut -d',' -f8)
+     
+     if (( $(echo "$cgpa == 0" | bc -l) )); then
+        echo -e "${BOLD_YELLOW}CGPA is Not Updated By The Teacher Yet!!${RESET}"
+        return
+    fi
     
     echo -e "${BOLD_CYAN}\n ---------       YOUR CGPA       ---------- ${RESET}"
     echo -e "${CYAN}Student: $name (ID: $student_current_id)${RESET}"
