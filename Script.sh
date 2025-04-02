@@ -57,14 +57,12 @@ student_ka_menu()
 auth_animation() 
 {
     echo -ne "\n               "
+    echo -ne "${BOLD_GREEN}\nAUTHENICATING: "
     for ((i=0; i<20; i++)); do
-        echo -ne "_"
+        sleep 0.02
+        echo -ne "▓"
     done
-    echo -ne "\nAuthenticating "
-    for ((i=0; i<20; i++)); do
-        sleep 0.05
-        echo -ne "#"
-    done
+    echo -ne "${RESET}"
 }
 
 teacher_uname="mian"
@@ -83,7 +81,7 @@ authenticate_t()
         auth_animation
         echo
         if [[ "$input_uname" == "$teacher_uname" && "$input_pass" == "$teacher_pass" ]]; then
-            echo -e "${BOLD_GREEN}Authentication Successful!${RESET}"
+            echo -e "${BOLD_GREEN}Successfully Signed In!${RESET}"
             return 0
         else
             echo -e "${BOLD_YELLOW}Invalid credentials! Try again.${RESET}"
