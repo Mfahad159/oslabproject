@@ -1,20 +1,33 @@
 #!/bin/bash
+# ----------------
+# FUNCTIONS OVERVIEW:
+# -----------------
+# student_ka_menu(): Displays the student portal menu options
+# view_student_grades(): Shows the student's grades for each subject
+# view_student_cgpa(): Shows the student's overall CGPA and performance status
 
-#student menu 
+
+
+#student menu #################################################################
 student_ka_menu()
 {
-    echo -e "${BOLD_CYAN}\n Welcome To Student Portal ${student_current_id} ${RESET}"
-    echo -e "1. View Grades"
-    echo -e "2. View CGPA"
-    echo -e "0. Log Out"
+    echo -e "${BOLD_YELLOW}Welcome To Student Portal ${student_current_id}\n ${RESET}"
+    echo -e "[01] View Grades"
+    echo -e "[02] View CGPA"
+    echo -e "[00] Log Out"
     echo -e  "${RESET}"
 }
+#############################################################################
 
+
+
+
+#Functions to view grades ################################################
 view_student_grades()
 {
     clear
     if [[ ! -f "$M_FILE" ]]; then
-        echo -e "${BOLD_YELLOW}No grades found for your account!${RESET}"
+        echo -e "${BOLD_YELLOW}No Grades Found For Your Account!${RESET}"
         return
     fi
     
@@ -22,7 +35,7 @@ view_student_grades()
     student_marks=$(grep "^$student_current_id," "$M_FILE")
     
     if [[ -z "$student_marks" ]]; then
-        echo -e "${BOLD_YELLOW}No grades found for your account!${RESET}"
+        echo -e "${BOLD_YELLOW}No Grades Found For Your Account!${RESET}"
         return
     fi
     
@@ -37,19 +50,36 @@ view_student_grades()
     grade2=$(echo "$student_marks" | cut -d',' -f6)
     grade3=$(echo "$student_marks" | cut -d',' -f7)
     
-    echo -e "${BOLD_CYAN}\n ---------       YOUR GRADES       ---------- ${RESET}"
+    echo -e "${CYAN}---------------------------------------- ${RESET}"
     echo -e "${CYAN}Student: $name (ID: $student_current_id)${RESET}"
-    echo -e "${CYAN}-------------------------------------------${RESET}"
-    echo -e "${CYAN}Subject 1: $sub1/100 (Grade: $grade1)${RESET}"
-    echo -e "${CYAN}Subject 2: $sub2/100 (Grade: $grade2)${RESET}"
-    echo -e "${CYAN}Subject 3: $sub3/100 (Grade: $grade3)${RESET}"
+    echo -e "${CYAN}-----------------------------------------${RESET}"
+    
+    # Check if grades have been calculated
+    if [[ "$grade1" == "N/A" || "$grade2" == "N/A" || "$grade3" == "N/A" ]]; then
+        echo -e "${BOLD_YELLOW}Your Grades Have Not Been Updated By The Teacher yet!${RESET}"
+        echo -e "${CYAN}Raw Marks:${RESET}"
+        echo -e "${CYAN}OS: $sub1/100${RESET}"
+        echo -e "${CYAN}DB: $sub2/100${RESET}"
+        echo -e "${CYAN}PROB: $sub3/100${RESET}"
+    else
+        echo -e "${CYAN}OS: $sub1/100 (Grade: $grade1)${RESET}"
+        echo -e "${CYAN}DB: $sub2/100 (Grade: $grade2)${RESET}"
+        echo -e "${CYAN}PROB: $sub3/100 (Grade: $grade3)${RESET}"
+    fi
 }
+##############################################################################
 
+
+
+
+
+
+#Functions to view CGPA ######################################################
 view_student_cgpa()
 {
     clear
     if [[ ! -f "$M_FILE" ]]; then
-        echo -e "${BOLD_YELLOW}No CGPA found for your account!${RESET}"
+        echo -e "${BOLD_YELLOW}No CGPA Found For Your Account!${RESET}"
         return
     fi
     
@@ -57,7 +87,7 @@ view_student_cgpa()
     student_marks=$(grep "^$student_current_id," "$M_FILE")
     
     if [[ -z "$student_marks" ]]; then
-        echo -e "${BOLD_YELLOW}No CGPA found for your account!${RESET}"
+        echo -e "${BOLD_YELLOW}No CGPA Found For Your Account!${RESET}"
         return
     fi
     
@@ -67,12 +97,12 @@ view_student_cgpa()
     # Parse CGPA
     cgpa=$(echo "$student_marks" | cut -d',' -f8)
      
-     if (( $(echo "$cgpa == 0" | bc -l) )); then
+    if [[ "$cgpa" == "N/A" ]]; then
         echo -e "${BOLD_YELLOW}CGPA is Not Updated By The Teacher Yet!!${RESET}"
         return
     fi
     
-    echo -e "${BOLD_CYAN}\n ---------       YOUR CGPA       ---------- ${RESET}"
+    echo -e "${CYAN}------------------------------------------- ${RESET}"
     echo -e "${CYAN}Student: $name (ID: $student_current_id)${RESET}"
     echo -e "${CYAN}-------------------------------------------${RESET}"
     echo -e "${CYAN}Your CGPA: $cgpa${RESET}"
@@ -89,3 +119,4 @@ view_student_cgpa()
         echo -e "${BOLD_YELLOW}Status: Need Improvement (Failed)${RESET}"
     fi
 }
+##############################################################################
