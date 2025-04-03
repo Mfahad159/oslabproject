@@ -20,7 +20,7 @@
 teacher_ka_menu()
 {
     clear
-    echo -e "${BOLD_YELLOW}Welcome ${teacher_name} to Teacher Portal\n${RESET}"
+    echo -e "${BOLD_YELLOW}Welcome ${teacher_name} to Teacher Portal${RESET}"
     echo -e "[01] Add New Student"
     echo -e "[02] Delete Student"
     echo -e "[03] Assign Marks"
@@ -436,9 +436,7 @@ list_students_asc_cgpa()
         return
     fi
     
-    echo -e "${CYAN}--------------------------------------------${RESET}"
-    echo -e "${CYAN}ID\tName\t\tDepartment\tCGPA${RESET}"
-    echo -e "${CYAN}--------------------------------------------${RESET}"
+   
     
     # Filter out entries with N/A CGPA
     grep -v ",N/A$" "$M_FILE" > temp_valid_cgpa.txt
@@ -451,7 +449,10 @@ list_students_asc_cgpa()
         read -r
         return
     fi
-    
+
+    echo -e "${CYAN}--------------------------------------------${RESET}"
+    echo -e "${CYAN}ID\tName\t\tDepartment\tCGPA${RESET}"
+    echo -e "${CYAN}--------------------------------------------${RESET}"
     # Create a temporary file with sorted data (only entries with valid CGPA)
     sort -t',' -k8 -n temp_valid_cgpa.txt > temp_sort.txt
     
@@ -490,9 +491,7 @@ list_students_desc_cgpa()
         echo -e "${BOLD_YELLOW}No Student Records Or Marks Found!${RESET}"
         return
     fi
-    echo -e "${CYAN}--------------------------------------------${RESET}"
-    echo -e "${CYAN}ID\tName\t\tDepartment\tCGPA${RESET}"
-    echo -e "${CYAN}--------------------------------------------${RESET}"
+   
     
     # Filter out entries with N/A CGPA
     grep -v ",N/A$" "$M_FILE" > temp_valid_cgpa.txt
@@ -505,6 +504,9 @@ list_students_desc_cgpa()
         read -r
         return
     fi
+    echo -e "${CYAN}--------------------------------------------${RESET}"
+    echo -e "${CYAN}ID\tName\t\tDepartment\tCGPA${RESET}"
+    echo -e "${CYAN}--------------------------------------------${RESET}"
     
     # Create a temporary file with sorted data (only entries with valid CGPA)
     sort -t',' -k8 -nr temp_valid_cgpa.txt > temp_sort.txt
@@ -535,7 +537,7 @@ list_students_desc_cgpa()
 
 
 
-# Function to calculate grades for all students ##############################
+# Function to calculate grades for all students ################################
 calculate_grades() 
 {
     clear
