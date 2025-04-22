@@ -30,6 +30,7 @@ teacher_ka_menu()
     echo -e "[07] List Failed Students"
     echo -e "[08] List Students by CGPA (Ascending Order)"
     echo -e "[09] List Students by CGPA (Descending Order)"
+    echo -e "[10] List ALL Students"
     echo -e "[00] Log Out"
     echo -e  "${RESET}"
 }
@@ -56,14 +57,14 @@ add_student()
     echo -e "${BOLD_YELLOW}\nEnter Student Details:${RESET}"
     read -p "Student ID: " student_id
     # Empty ID validation
-    while [[ -z "$student_id" ]]; do
-        echo -e "${BOLD_RED}Student ID Cannot Be Empty!${RESET}"
+    while [[ student_id -le 0 ]]; do
+        echo -e "${BOLD_RED}Invalid Student Id!${RESET}"
         read -p "Student ID: " student_id
     done
 
     read -p "Password: " password
     # Empty password validation
-    while [[ -z "$password" ]]; do
+    while [[ -z "$password" && $password -le 0 ]]; do
         echo -e "${BOLD_RED}Password Cannot Be Empty!${RESET}"
         read -p "Password: " password
     done
@@ -124,6 +125,7 @@ add_student()
 #Delete student function ################################################
 del_student() {
     clear
+    all_students
     read -p "Enter Student ID To Delete: " del_id
     # Empty ID validation
     while [[ -z "$del_id" ]]; do
@@ -268,6 +270,7 @@ assign_marks()
 #function to show all students in data ########################################
 all_students()
 { 
+    clear
     if [[ ! -f "$S_FILE" ]]; then
         echo -e "${BOLD_YELLOW}No Student Records Found!${RESET}"
         return
@@ -283,6 +286,7 @@ all_students()
     done < "$S_FILE"
     student_count=$(grep -c "^" "$S_FILE")
     echo -e "\n${CYAN}Total Students: $student_count / 20${RESET}"
+    echo
 }
 #############################################################################
 
@@ -336,13 +340,15 @@ passed_students()
     # Only show table if we found passed students
     if [[ $passed_found -eq 1 ]]; then
         echo -e "${CYAN}---------------------------------------------${RESET}"
-        echo -e "${CYAN}ID\tName\t\tDepartment\tCGPA${RESET}"
+        echo -e "${CYAN}ID      Name        Department  CGPA${RESET}"
+
         echo -e "${CYAN}---------------------------------------------${RESET}"
         
         # Display the passed students
         for i in "${!passed_students[@]}"; do
             echo -e "${CYAN}${passed_students[$i]}\t${passed_names[$i]}\t\t${passed_departments[$i]}\t${passed_cgpas[$i]}${RESET}"
         done
+        echo
         echo -e "Press Enter To Return To Main Menu..."
     read -r
     else
@@ -404,13 +410,15 @@ failed_students()
     # Only show table if we found failed students
     if [[ $failed_found -eq 1 ]]; then
         echo -e "${CYAN}---------------------------------------------${RESET}"
-        echo -e "${CYAN}ID\tName\t\tDepartment\tCGPA${RESET}"
+        echo -e "${CYAN}ID\tName  Department  CGPA${RESET}"
+        echo
         echo -e "${CYAN}---------------------------------------------${RESET}"
         
         # Display the failed students
         for i in "${!failed_students[@]}"; do
             echo -e "${CYAN}${failed_students[$i]}\t${failed_names[$i]}\t\t${failed_departments[$i]}\t${failed_cgpas[$i]}${RESET}"
         done
+        echo
         echo -e "Press Enter To Return To Main Menu..."
     read -r
     else

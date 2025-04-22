@@ -52,7 +52,7 @@
 
 # Import the other script files ################################################
 source ./teacher.sh
-source ./student.sh
+source ./students.sh
 ################################################################################
 
 
@@ -183,7 +183,7 @@ authenticate_t()
             read -p "Teacher Username: " input_uname
         done
         
-        read -p "Password: " input_pass
+        read -s -p "Password: " input_pass
         
         # Empty password validation
         while [[ -z "$input_pass" ]]; do
@@ -310,6 +310,10 @@ while [[ $main_choice -ne 0 ]]; do
                 list_students_asc_cgpa
             elif [[ $teacher_choice -eq 9 ]]; then
                 list_students_desc_cgpa
+             elif [[ $teacher_choice -eq 10 ]]; then
+                all_students
+                echo -e "Press Enter To Return To Main Menu..."
+                read -r
             elif [[ $teacher_choice -eq 0 ]]; then
                  unauth_animation
             else
