@@ -51,7 +51,7 @@ view_student_grades()
     grade3=$(echo "$student_marks" | cut -d',' -f7)
     
     echo -e "${CYAN}---------------------------------------- ${RESET}"
-    echo -e "${CYAN}Student: $name (ID: $student_current_id)${RESET}"
+    echo -e "${CYAN}Student: $name  (ID: $student_current_id)${RESET}"
     echo -e "${CYAN}-----------------------------------------${RESET}"
     
     # Check if grades have been calculated
